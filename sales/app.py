@@ -12,34 +12,18 @@ ui.page_opts(title="Sales Dashboard -- Video 1 of 5", fillable=False)
 @reactive.calc
 def dat():
     infile = Path(__file__).parent / "data/sales.csv"
-    # input.n()  # Ensure that this reactive depends on the input value
     df = pandas.read_csv(infile)
     df["order_date"] = pandas.to_datetime(df["order_date"])
     df["month"] = df["order_date"].dt.month_name()
     df["value"] = df["quantity_ordered"] * df["price_each"]
     return df
 
-# with ui.card():  
-#     ui.card_header("Top Selling Products")
-
-#     with ui.layout_sidebar():  
-#         with ui.sidebar(bg="#f8f8f8", open='closed'): 
-#             ui.input_numeric("n", "Number of Items", 5, min=2, max=20)
-
-#         @render_plotly
-#         def plot1():
-#             df = dat()
-#             #top_sales = df.groupby('product')['quantity_ordered'].nlargest(5).reset_index()
-#             top_sales = df.groupby('product')['quantity_ordered'].sum().nlargest(input.n()).reset_index() 
-#             fig = px.histogram(top_sales, x='product', y="quantity_ordered", title=f"Top {input.n()} Products by Quantity Ordered")
-#             return fig
 with layout_column_wrap(width=1/2):
     with ui.navset_card_underline(id="tab", footer=ui.input_numeric("n", "Number of Items", 5, min=2, max=20)):  
         with ui.nav_panel("Top Selling Products"):
             @render_plotly
             def plot_top_sellers():
                 df = dat()
-                #top_sales = df.groupby('product')['quantity_ordered'].nlargest(5).reset_index()
                 top_sales = df.groupby('product')['quantity_ordered'].sum().nlargest(input.n()).reset_index() 
                 fig = px.bar(top_sales, x='product', y="quantity_ordered", title=f"Top {input.n()} Products by Quantity Ordered")
                 return fig
@@ -48,7 +32,6 @@ with layout_column_wrap(width=1/2):
             @render_plotly
             def plot_top_sellers_value():
                 df = dat()
-                #top_sales = df.groupby('product')['quantity_ordered'].nlargest(5).reset_index()
                 top_sales = df.groupby('product')['value'].sum().nlargest(input.n()).reset_index() 
                 fig = px.bar(top_sales, x='product', y="value", title=f"Top {input.n()} Products by Value")
                 return fig
@@ -57,7 +40,6 @@ with layout_column_wrap(width=1/2):
             @render_plotly
             def plot_lowest_sellers():
                 df = dat()
-                #top_sales = df.groupby('product')['quantity_ordered'].nlargest(5).reset_index()
                 top_sales = df.groupby('product')['quantity_ordered'].sum().nsmallest(input.n()).reset_index() 
                 fig = px.bar(top_sales, x='product', y="quantity_ordered", title=f"Top {input.n()} Products by Quantity Ordered")
                 return fig
@@ -66,7 +48,6 @@ with layout_column_wrap(width=1/2):
             @render_plotly
             def plot_lowest_sellers_value():
                 df = dat()
-                #top_sales = df.groupby('product')['quantity_ordered'].nlargest(5).reset_index()
                 top_sales = df.groupby('product')['value'].sum().nsmallest(input.n()).reset_index() 
                 fig = px.bar(top_sales, x='product', y="value", title=f"Top {input.n()} Products by Value")
                 return fig
@@ -106,7 +87,6 @@ with ui.card():
         @render_plotly
         def sales_over_time():
             df = dat()
-        #    print(list(df.city.unique()))
 
             sales = df.groupby(["city", "month"])["quantity_ordered"].sum().reset_index()
             sales_by_city = sales[sales["city"] == input.city()]
