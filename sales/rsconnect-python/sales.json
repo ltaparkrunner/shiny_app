@@ -1,0 +1,12 @@
+{
+    "https://api.shinyapps.io": {
+        "server_url": "https://api.shinyapps.io",
+        "filename": "C:\\wrk\\shiny\\shiny-python-projects\\sales",
+        "app_url": "https://mayan-sailor.shinyapps.io/sails-video-11/",
+        "app_id": "16813678",
+        "app_guid": null,
+        "title": "sails-vid",
+        "app_mode": "python-shiny",
+        "app_store_version": 1
+    }
+}
