@@ -139,7 +139,7 @@ with ui.card():
     def sample_sales_data():
         #return dat().head(50)
 #        return render.DataGrid(dat().head(100), filters=True)
-        return render.DataTable(dat().head(100), selection_mode="rwo", filters=True)
+        return render.DataTable(dat().head(100), selection_mode="row", filters=True)
 
 with ui.card():
     @render.code
