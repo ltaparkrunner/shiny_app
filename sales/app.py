@@ -4,11 +4,18 @@ import calendar
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+
+import folium
+from folium.plugins import HeatMap
+
 from pathlib import Path
 from shiny import reactive
 from shiny.express import render, input, ui
 from shiny.ui import layout_column_wrap, layout_columns
 from shinywidgets import render_plotly, render_altair, render_widget
+
+
+import altair as alt
 
 ui.page_opts(title="Sales Dashboard -- Video 1 of 5", fillable=False)
 
@@ -72,7 +79,16 @@ with layout_column_wrap(width=1/2):
 
 with ui.card():
     ui.card_header("Sales by location Map")
-    "Content Here"
+    @render.ui
+    def plot_sales_map():
+        df = dat()
+        heatmap_data = df[['lat', 'long', 'quantity_ordered']].values
+        map = folium.Map(location=[37.0902, -95.7129], zoom_start=4)  # Центрируем карту на США
+        # HeatMap(heatmap_data, radius=15).add_to(map)
+        print(map._repr_html_())  # Возвращаем HTML представление карты
+        # print(heatmap_data)
+        HeatMap(heatmap_data).add_to(map)
+        return map
 
 with ui.card():
     ui.card_header("Sales by City in 2023")
@@ -97,26 +113,40 @@ with ui.card():
                 selected='Boston (MA)'
             )
 
-
-        @render_plotly
+        #@render_widget
+        @render_altair
         def sales_over_time():
             df = dat()
 
             sales = df.groupby(["city", "month"])["quantity_ordered"].sum().reset_index()
             sales_by_city = sales[sales["city"] == input.city()]
-            month_order = calendar.month_name[1:]  # Get month names from January to December
-            fig = px.bar(
-                sales_by_city,
-                x="month",
-                y="quantity_ordered",
-                title=f"SalesOver Time -- {input.city()}",
-                category_orders={"month": month_order},
+            month_order = list(calendar.month_name[1:])  # Altair любит списки
+
+            chart = alt.Chart(sales_by_city).mark_bar().encode(
+                x=alt.X("month:N", sort=month_order, title="Month"),
+                y=alt.Y("quantity_ordered:Q", title="Quantity Ordered"),
+                tooltip=["month", "quantity_ordered"]
+            ).properties(
+                title=f"Sales Over Time -- {input.city()}",
+                width="container" # Делает график адаптивным
             )
-            return fig
+            return chart
 
 with ui.card():
     ui.card_header("Sample Sales Data")
 
     @render.data_frame
     def sample_sales_data():
-        return dat().head(50)
+        #return dat().head(50)
+#        return render.DataGrid(dat().head(100), filters=True)
+        return render.DataTable(dat().head(100), selection_mode="rwo", filters=True)
+
+with ui.card():
+    @render.code
+    def show_code():
+        code = '''
+        @render.data_frame
+        def sample_sales_data():
+            return dat().head(50)
+        '''
+        return code
