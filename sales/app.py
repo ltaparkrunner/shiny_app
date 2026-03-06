@@ -8,7 +8,7 @@ from pathlib import Path
 from shiny import reactive
 from shiny.express import render, input, ui
 from shiny.ui import layout_column_wrap, layout_columns
-from shinywidgets import render_plotly
+from shinywidgets import render_plotly, render_altair, render_widget
 
 ui.page_opts(title="Sales Dashboard -- Video 1 of 5", fillable=False)
 
@@ -61,24 +61,14 @@ with layout_column_wrap(width=1/2):
         @render.plot
         def plot_sales_by_time():
             df = dat()
-            sales_by_hour = df['hour'].value_counts().reset_index()
-            # print(sales_by_hour)
-            plt.bar(x=sales_by_hour['hour'], height=sales_by_hour['count'])
-            plt.xticks(np.arange(0, 24))
-
-            #sales_by_hour.plot(x='hour', y='count', kind='bar')
-
-            # df = dat()
-            # df["hour"] = df["order_date"].dt.hour
-            # sales_by_time = df.groupby("hour")["quantity_ordered"].sum().reset_index()
-            # plt.figure(figsize=(10, 6))
-            # plt.bar(sales_by_time["hour"], sales_by_time["quantity_ordered"], color='skyblue')
-            # plt.xlabel("Hour of Day")
-            # plt.ylabel("Quantity Ordered")
-            # plt.title("Sales by Time of Day")
-            # plt.xticks(range(0, 24))
-            # plt.grid(axis='y')
-            # return plt.gcf()
+            sales_by_hour = df['hour'].value_counts().reindex(np.arange(0,24), fill_value=0)#.reset_index()
+            heatmap_data = sales_by_hour.values.reshape(24, 1)  # Reshape for heatmap
+            sns.heatmap(heatmap_data, annot=True, fmt="d", cmap="YlGnBu", cbar=False,
+                        xticklabels=[],
+                        yticklabels=[f"{hour}:00" for hour in range(24)])
+            plt.title("Number of Orders by Hour of Day")
+            plt.ylabel("Hour of Day")
+            plt.xlabel("Order Count")
 
 with ui.card():
     ui.card_header("Sales by location Map")
