@@ -158,23 +158,30 @@ with ui.card():
                 selected='Boston (MA)'
             )
 
-        #@render_widget
-        @render_altair
+        @render_widget
+        #@render_altair
         def sales_over_time():
             df = dat()
 
             sales = df.groupby(["city", "month"])["quantity_ordered"].sum().reset_index()
             sales_by_city = sales[sales["city"] == input.city()]
-            month_order = list(calendar.month_name[1:])  # Altair любит списки
+            month_order = list(calendar.month_name)[1:] # Altair любит списки
 
+            font_props = alt.Axis(labelFont="Arial", labelColor='#4C7A8A8', titleFont="Arial", titleColor="#4C7A8A8", tickSize=0, labelAngle=0)
             chart = alt.Chart(sales_by_city).mark_bar().encode(
-                x=alt.X("month:N", sort=month_order, title="Month"),
-                y=alt.Y("quantity_ordered:Q", title="Quantity Ordered"),
+                x=alt.X("month", sort=month_order, title="Month", axis=alt.Axis(labelFont="Arial", labelColor='#4C7A8A8', titleFont="Arial", titleColor='#4C7A8A8')),
+                y=alt.Y("quantity_ordered", title="Quantity Ordered", axis=alt.Axis(labelFont="Arial", labelColor='#4C7A8A8', titleFont="Arial", titleColor='#4C7A8A8')),
                 tooltip=["month", "quantity_ordered"]
             ).properties(
-                title=f"Sales Over Time -- {input.city()}",
-                width="container" # Делает график адаптивным
-            )
+                title=alt.Title(f"Sales Over Time -- {input.city()}" )
+                #width="container" # Делает график адаптивным
+            ).configure_axis(
+                grid=False
+            ).configure_title(
+                font="Arial",
+                color="#4C7A8A8"
+            )   
+
             return chart
 
 with ui.card():
