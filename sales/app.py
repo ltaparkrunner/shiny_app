@@ -16,8 +16,31 @@ from shinywidgets import render_plotly, render_altair, render_widget
 
 
 import altair as alt
+# ui.tags.style(
+#     """
+#         .control-label {
+#             background=color: blue;  
+#         }
+#     """
+# )
+# ui.tags.style(
+#     """
+#         #city-label {
+#             background-color: blue; 
+#             font-size: 50px;
+#         }
+#   """
+# )
+ui.tags.style(
+    """
+        .custom-sidebar {
+            background-color: blue !important; 
+            font-size: 50px;
+        }
+  """
+)
 
-ui.page_opts(title="Sales Dashboard -- Video 1 of 5", fillable=False)
+ui.page_opts(window_title="Sales Dashboard", fillable=False)
 
 @reactive.calc
 def dat():
@@ -28,6 +51,17 @@ def dat():
     df["hour"] = df["order_date"].dt.hour
     df["value"] = df["quantity_ordered"] * df["price_each"]
     return df
+
+with ui.div(class_="header-container"):
+    with ui.div(class_="logo-container"):
+        @render.image  
+        def image():
+            here = Path(__file__).parent.parent
+            img = {"src": here / "images/shiny-logo.png", "width": "100px"}  
+            return img
+
+    with ui.div(class_="title-container"):
+        ui.h2("Sales Dashboard")
 
 with layout_column_wrap(width=1/2):
     with ui.navset_card_underline(id="tab", footer=ui.input_numeric("n", "Number of Items", 5, min=2, max=20)):  
@@ -92,7 +126,7 @@ with ui.card():
 
 with ui.card():
     ui.card_header("Sales by City in 2023")
-    with ui.layout_sidebar():  
+    with ui.layout_sidebar(class_="custom-sidebar"):  
         with ui.sidebar(bg="#f8f8f8", open='closed'): 
             ui.input_selectize(
                 "city",
