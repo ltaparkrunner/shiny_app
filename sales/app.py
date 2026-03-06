@@ -1,6 +1,9 @@
 import pandas
 import plotly.express as px
 import calendar
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 from pathlib import Path
 from shiny import reactive
 from shiny.express import render, input, ui
@@ -15,6 +18,7 @@ def dat():
     df = pandas.read_csv(infile)
     df["order_date"] = pandas.to_datetime(df["order_date"])
     df["month"] = df["order_date"].dt.month_name()
+    df["hour"] = df["order_date"].dt.hour
     df["value"] = df["quantity_ordered"] * df["price_each"]
     return df
 
@@ -54,7 +58,27 @@ with layout_column_wrap(width=1/2):
             
     with ui.card():
         ui.card_header("Sales by Time of Day Heatmap")
-        "Heatmap"
+        @render.plot
+        def plot_sales_by_time():
+            df = dat()
+            sales_by_hour = df['hour'].value_counts().reset_index()
+            # print(sales_by_hour)
+            plt.bar(x=sales_by_hour['hour'], height=sales_by_hour['count'])
+            plt.xticks(np.arange(0, 24))
+
+            #sales_by_hour.plot(x='hour', y='count', kind='bar')
+
+            # df = dat()
+            # df["hour"] = df["order_date"].dt.hour
+            # sales_by_time = df.groupby("hour")["quantity_ordered"].sum().reset_index()
+            # plt.figure(figsize=(10, 6))
+            # plt.bar(sales_by_time["hour"], sales_by_time["quantity_ordered"], color='skyblue')
+            # plt.xlabel("Hour of Day")
+            # plt.ylabel("Quantity Ordered")
+            # plt.title("Sales by Time of Day")
+            # plt.xticks(range(0, 24))
+            # plt.grid(axis='y')
+            # return plt.gcf()
 
 with ui.card():
     ui.card_header("Sales by location Map")
