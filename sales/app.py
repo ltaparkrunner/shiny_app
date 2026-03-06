@@ -16,27 +16,38 @@ from shinywidgets import render_plotly, render_altair, render_widget
 
 
 import altair as alt
-# ui.tags.style(
-#     """
-#         .control-label {
-#             background=color: blue;  
-#         }
-#     """
-# )
-# ui.tags.style(
-#     """
-#         #city-label {
-#             background-color: blue; 
-#             font-size: 50px;
-#         }
-#   """
-# )
+
 ui.tags.style(
     """
-        .custom-sidebar {
-            background-color: blue !important; 
-            font-size: 50px;
+        .header-container {
+            display: flex;  
+            align-items: center;
+            justify-content: center;
+            height: 80px;
         }
+        .logo-container {
+            margin-right: 5px;
+            height: 100%;
+            display: flex;
+            padding: 20px;
+        }
+
+        .logo-container img {
+            height: 50px !important;
+        }
+
+        .title-container h2{
+            color: white;
+            background-color: #5DADE2;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 0;
+        } 
+
+        body {
+            background-color: #5DADE2;     
+        }
+
   """
 )
 
@@ -57,7 +68,7 @@ with ui.div(class_="header-container"):
         @render.image  
         def image():
             here = Path(__file__).parent.parent
-            img = {"src": here / "images/shiny-logo.png", "width": "100px"}  
+            img = {"src": here / "images/shiny-logo.png"}  
             return img
 
     with ui.div(class_="title-container"):
@@ -174,13 +185,3 @@ with ui.card():
         #return dat().head(50)
 #        return render.DataGrid(dat().head(100), filters=True)
         return render.DataTable(dat().head(100), selection_mode="row", filters=True)
-
-with ui.card():
-    @render.code
-    def show_code():
-        code = '''
-        @render.data_frame
-        def sample_sales_data():
-            return dat().head(50)
-        '''
-        return code
